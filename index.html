@@ -70,15 +70,27 @@
 </body>
 <script>
     const listOfBooksElement = document.getElementById("orderedListOfBooks");
+    const apiGETUrl = "https://192.168.137.94:7166/api/BookOperation/ViewAllBooks";   
 
-    fetch("https://192.168.137.221:7007/api/book").then((resposeObj) => {
+    const delSpecificBook = (currBookTitle) => {
+        const apiDELUrl = `https://192.168.137.94:7166/api/BookOperation/RemoveBook?title=${currBookTitle}`;
+        fetch(apiDELUrl, {method: "DELETE"}).then((res) => {
+            return res.text();
+        }).then((parsedText) => {
+            console.log(parsedText);
+        }).catch((err) => {
+            console.log(err);
+        });
+    };
+    
+    fetch(apiGETUrl).then((resposeObj) => {
         return resposeObj.json();
     }).then((parsedResponse) => {
         parsedResponse.forEach((currBookObj) => {
-            console.log(currBookObj.bookName);
+            console.log(currBookObj.title);
 
             const currListItem = document.createElement("li");
-            currListItem.innerText = currBookObj.bookName;
+            currListItem.innerHTML = `${currBookObj.title} <button onclick="delSpecificBook('${currBookObj.title}')"> remove ....</button>`;
             listOfBooksElement.appendChild(currListItem);
         });
     });
@@ -92,27 +104,27 @@
         const bookPubYear = document.getElementById("bookPubYear").value;
         const bookPrice = document.getElementById("bookPrice").value;
 
-        var myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
+        // var myHeaders = new Headers();
+        // myHeaders.append("Content-Type", "application/json");
 
-        var raw = JSON.stringify({
-            "bookName": bookTitle,
-            "author": bookAuthor,
-            "pub_year": bookPubYear,
-            "available_status": "available",
-            "price": bookPrice
-        });
+        // var raw = JSON.stringify({
+        //     "title": bookTitle,
+        //     "author": bookAuthor,
+        //     "publicationYear": bookPubYear,
+        //     "availability": "available"
+        // });
 
         var requestOptions = {
-            method: 'POST',
-            headers: myHeaders,
-            body: raw
+            method: 'POST'
         };
 
-        fetch("https://192.168.137.221:7007/api/book", requestOptions)
+        const apiPOSTUrl = `https://192.168.137.94:7166/api/BookOperation/AddBook?title=${bookTitle}&author=${bookAuthor}&publicationYear=${bookPubYear}`;
+        fetch(apiPOSTUrl, requestOptions)
             .then(response => response.text())
             .then(result => console.log(result))
             .catch(error => console.log('error', error));
+
+        
     });
 </script>
 
